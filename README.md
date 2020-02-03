@@ -2,4 +2,4 @@
 
 Built with Flask, Flask-RESTful, Flask-SQLAlchemy, and Flask-JWT.
 
-Deployed on Heroku.
+Deployed with uWSGI and nginx on an EC2 instance.
