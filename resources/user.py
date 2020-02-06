@@ -1,5 +1,5 @@
 from werkzeug.security import safe_str_cmp
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt, decode_token
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt, get_jwt_claims
 from flask_restful import Resource, reqparse
 from models.user import UserModel
 from blacklist import BLACKLIST
@@ -44,7 +44,7 @@ class UserLogin(Resource):
         if user and safe_str_cmp(user.password, data['password']):
             refresh_token = create_refresh_token(user.id)
             access_token = create_access_token(identity=user.id, fresh=True, user_claims={'refresh_token': refresh_token})
-            return {'access_token': access_token, 'refresh_token': decode_token(access_token)['refresh_token']}, 200
+            return {'access_token': access_token, 'refresh_token': get_jwt_claims()['refresh_token']}, 200
         return {'message': 'Invalid credentials.'}, 401
 
 
