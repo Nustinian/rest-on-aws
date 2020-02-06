@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, jsonify
 from flask_restful import Api
-from flask_jwt_extended import JWTManager
+from flask_jwt_extended import JWTManager, create_refresh_token
 from datetime import timedelta
 
 from resources.user import UserRegister, UserList, User, UserLogin, UserLogout, TokenRefresh
@@ -48,9 +48,10 @@ def revoked_token_callback():
 
 @jwt.user_claims_loader
 def add_claims_to_jwt(identity):
+    #refresh_token = create_refresh_token(identity)
     if identity == 1:
-        return {'is_admin': True}
-    return {'is_admin': False}
+        return {'is_admin': True}#, 'refresh_token': refresh_token}
+    return {'is_admin': False, 'refresh_token': refresh_token}
 
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
