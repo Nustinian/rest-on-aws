@@ -1,7 +1,8 @@
 from werkzeug.security import safe_str_cmp
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt
 from flask_restful import Resource, reqparse
 from models.user import UserModel
+from blacklist.py import BLACKLIST
 
 _user_parser = reqparse.RequestParser()
 _user_parser.add_argument('username', type=str, required=True, help="'username' field cannot be left blank.")
@@ -47,9 +48,18 @@ class UserLogin(Resource):
         return {'message': 'Invalid credentials.'}, 401
 
 
+class UserLogout(Resource):
+    @jwt_required
+    def post(self):
+        jti = get_raw_jwt()['jti']
+        BLACKLIST.add(jti)
+        return {'message': 'Successfully logged out.'}
+
+
 class UserList(Resource):
     def get(self):
         return {'users': [user.json() for user in UserModel.query.all()]}
+
 
 class TokenRefresh(Resource):
     @jwt_refresh_token_required
