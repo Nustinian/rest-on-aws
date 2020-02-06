@@ -1,5 +1,6 @@
 from werkzeug.security import safe_str_cmp
-from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt, get_jwt_claims
+from flask import jsonify
+from flask_jwt_extended import create_access_token, create_refresh_token, jwt_refresh_token_required, get_jwt_identity, jwt_required, get_raw_jwt, get_jwt_claims, decode_token
 from flask_restful import Resource, reqparse
 from models.user import UserModel
 from blacklist import BLACKLIST
@@ -43,7 +44,8 @@ class UserLogin(Resource):
         user = UserModel.find_by_username(data['username'])
         if user and safe_str_cmp(user.password, data['password']):
             refresh_token = create_refresh_token(user.id)
-            access_token = create_access_token(identity=user.id, fresh=True, user_claims={'refresh_token': refresh_token})
+            admin = (user.id == 1)
+            access_token = create_access_token(identity=user.id, fresh=True, user_claims={'refresh_token': refresh_token, 'is_admin': admin})
             return {'access_token': access_token, 'refresh_token': refresh_token}, 200
         return {'message': 'Invalid credentials.'}, 401
 
@@ -51,9 +53,12 @@ class UserLogin(Resource):
 class UserLogout(Resource):
     @jwt_required
     def post(self):
+        refresh = get_jwt_claims()['refresh_token']
+        refresh_jti = decode_token(refresh)['jti']
         jti = get_raw_jwt()['jti']
+        BLACKLIST.add(refresh_jti)
         BLACKLIST.add(jti)
-        return {'message': 'Successfully logged out.'}
+        return jsonify({"blacklist": list(BLACKLIST)})
 
 
 class UserList(Resource):

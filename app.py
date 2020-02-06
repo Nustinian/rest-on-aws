@@ -46,12 +46,12 @@ def check_if_token_in_blacklist(decrypted_token):
 def revoked_token_callback():
     return jsonify({"description": "This token has been revoked.", "error": "token_revoked"}), 401
 
-@jwt.user_claims_loader
-def add_claims_to_jwt(identity):
-    #refresh_token = create_refresh_token(identity)
-    if identity == 1:
-        return {'is_admin': True}#, 'refresh_token': refresh_token}
-    return {'is_admin': False, 'refresh_token': refresh_token}
+#@jwt.user_claims_loader
+#def add_claims_to_jwt(identity):
+#    refresh_token = create_refresh_token(identity)
+#    if identity == 1:
+#        return {'is_admin': True, 'refresh_token': refresh_token}
+#    return {'is_admin': False, 'refresh_token': refresh_token}
 
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
