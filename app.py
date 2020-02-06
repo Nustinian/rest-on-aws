@@ -29,10 +29,10 @@ def invalid_token_callback(error):
 
 @jwt.unauthorized_loader
 def missing_token_callback(error):
-    return jsonify({"description": "Request does not take an access token.", "error": "authorization_required"}), 401
+    return jsonify({"description": "Request does not contain an access token.", "error": "authorization_required"}), 401
 
 @jwt.needs_fresh_token_loader
-def token_not_fresh_callback(error):
+def token_not_fresh_callback():
     return jsonify({"description": "This action requires a fresh token.", "error": "fresh_token_required"}), 401
 
 @jwt.revoked_token_loader
