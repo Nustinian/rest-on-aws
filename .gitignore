@@ -129,6 +129,5 @@ dmypy.json
 .pyre/
 
 
-#ignore logs and venv
-venv/
+#ignore logs
 log/
