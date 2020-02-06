@@ -39,7 +39,11 @@ class Item(Resource):
             return {"message": "Something went wrong internally. Sorry about that."}, 500
         return {"message": "Successfully updated item.", "item": item.json()}, 201
 
+    @jwt_required
     def delete(self, name):
+        claims = get_jwt_claims()
+        if not claims['is_admin']:
+            return {'message': 'Admin privilege required.'}, 401
         item = ItemModel.find_by_name(name)
         if ItemModel.find_by_name(name):
             item.delete_from_db()

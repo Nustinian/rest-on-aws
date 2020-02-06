@@ -17,16 +17,13 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 app.secret_key = 'notreallysecret'
 api = Api(app)
 
-#app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=1800)
-#app.config['JWT_AUTH_USERNAME_KEY'] = 'uname'
 jwt = JWTManager(app)
 
-#@jwt.auth_response_handler
-#def customized_response_handler(access_token, _id):
-#    return jsonify({
-#            'access_token': access_token.decode('utf-8'),
-#            'user_id': _id.id
-#        })
+@jwt.user_claims_loader
+def add_claims_to_jwt(identity):
+    if identity == 1:
+        return {'is admin': True}
+    return {'is admin': False}
 
 api.add_resource(Item, '/item/<string:name>')
 api.add_resource(ItemList, '/items')
