@@ -9,12 +9,15 @@ from resources.user import UserRegister, UserList, User, UserLogin, TokenRefresh
 from resources.item import Item, ItemList
 from resources.store import Store, StoreList
 from db import db
+from blacklist import BLACKLIST
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///data.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True
 app.secret_key = 'notreallysecret'
+app.config['JWT_BLACKLIST_ENABLED'] = True
+app.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 api = Api(app)
 
 jwt = JWTManager(app)
@@ -34,6 +37,10 @@ def missing_token_callback(error):
 @jwt.needs_fresh_token_loader
 def token_not_fresh_callback():
     return jsonify({"description": "This action requires a fresh token.", "error": "fresh_token_required"}), 401
+
+@jwt.token_in_blacklist_loader
+def check_if_token_in_blacklist(decrypted_token):
+    return decrypted_token['identity'] in BLACKLIST
 
 @jwt.revoked_token_loader
 def revoked_token_callback():
