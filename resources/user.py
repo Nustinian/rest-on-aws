@@ -16,6 +16,15 @@ class UserRegister(Resource):
             return {"message": "User created successfully."}, 201
 
 
+class User(Resource):
+    @classmethod
+    def get(cls, user_id):
+        user = UserModel.find_by_id(user_id)
+        if not user:
+            return {'message': 'User not found.'}, 404
+        return user.json()
+
+
 class UserList(Resource):
     def get(self):
         return {'users': [user.json() for user in UserModel.query.all()]}
